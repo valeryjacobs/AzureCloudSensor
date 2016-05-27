@@ -40,7 +40,7 @@ namespace CloudSensor
 
         }
 
-       
+
 
         public void Sense()
         {

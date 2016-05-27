@@ -43,7 +43,7 @@ namespace CloudSensor
             cs = new CloudSensorHelper();
 
             //SNIP4
-            
+
 
             Setup();
         }
@@ -67,7 +67,7 @@ namespace CloudSensor
         private void IoTimer_Tick(object sender, object e)
         {
             //SNIP5
-            
+
         }
 
         private void OnTick(object sender, object e)
@@ -77,7 +77,7 @@ namespace CloudSensor
 
 
             SenseAndSubmit();
-           
+
 
             timer.Start();
         }
@@ -95,9 +95,9 @@ namespace CloudSensor
 
             if (send)
             {
-                
-                
-                
+
+
+
                 //SNIP6
 
                 eventCache.Add(new TimeValueItem { Time = DateTime.Now.ToString("H:mm:ss"), Value = cs.Temperature });
