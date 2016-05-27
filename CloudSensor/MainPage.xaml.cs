@@ -41,18 +41,9 @@ namespace CloudSensor
             localSettings = ApplicationData.Current.LocalSettings;
 
             cs = new CloudSensorHelper();
-            if (localSettings.Values["DeviceConnectionString"] != null)
-            {
-                cs.DeviceConnectionString = localSettings.Values["DeviceConnectionString"].ToString();
-                
-            }
-            else
-            {
-                cs.DeviceConnectionString = hardCodedDeviceConnectionString;
-            }
 
-            deviceConnectionString.Text = cs.DeviceConnectionString;
-
+            //SNIP4
+            
 
             Setup();
         }
@@ -75,32 +66,8 @@ namespace CloudSensor
 
         private void IoTimer_Tick(object sender, object e)
         {
-            //Handle a button press event exactly once.
-            if (cs.HAT != null)
-            {
-                if (cs.HAT.IsDIO18Pressed())
-                {
-                    if (!backOffUp)
-                        cs.TempOffset += 2;
-                    backOffUp = true;
-                }
-                else
-                {
-                    backOffUp = false;
-                }
-
-                if (cs.HAT.IsDIO22Pressed())
-                {
-                    if (!backOffDown)
-                        cs.TempOffset -= 2;
-
-                    backOffDown = true;
-                }
-                else
-                {
-                    backOffDown = false;
-                }
-            }
+            //SNIP5
+            
         }
 
         private void OnTick(object sender, object e)
@@ -128,20 +95,10 @@ namespace CloudSensor
 
             if (send)
             {
-                //Update conn str in case it was changed in the UI at runtime.
-                cs.DeviceConnectionString = deviceConnectionString.Text;
-
-                await cs.SendMeasurement();
-
-                message.Text = cs.Online ? "Online" : "Check connection or connection string!";
-
-                if (!cs.Online)
-                {
-                    SubmitButton.IsChecked = false;
-                    deviceConnectionString.Focus(FocusState.Keyboard);
-                }
-
-                localSettings.Values["DeviceConnectionString"] = cs.DeviceConnectionString;
+                
+                
+                
+                //SNIP6
 
                 eventCache.Add(new TimeValueItem { Time = DateTime.Now.ToString("H:mm:ss"), Value = cs.Temperature });
 

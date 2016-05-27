@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Snippet 1 - Adding the FEZHAT shield</Title>
+      <Author>Valery Jacobs</Author>
+      <Description>Initializes the shield and confirms this by turning on the onboard leds.</Description>
+      <Shortcut>snip1</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>GHIElectronics.UWP.Shields</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp">
+        <![CDATA[
+                private FEZHAT _hat;
+        public FEZHAT HAT
+        {
+            get { return _hat; }
+            set { _hat = value; }
+        }
+
+        private async void Init()
+        {
+            try
+            {
+                //Try to create the HAT and if it fails we assume it is absent or the UWP app is not running on W10 IoT Core (f.e. local deploy from VS)
+                HAT = await FEZHAT.CreateAsync();
+            }
+            catch
+            {
+                hatAvailable = false;
+            }
+
+            if (HAT == null)
+            {
+                hatAvailable = false;
+
+            }
+            else
+            {
+                hatAvailable = true;
+                HAT.DIO24On = true;
+                HAT.D2.Color = FEZHAT.Color.Green;
+                HAT.D3.Color = FEZHAT.Color.Green;
+            }
+        }
+
+            
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+  
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Snippet 2 - Reading FEZHAT sensor values</Title>
+      <Author>Valery Jacobs</Author>
+      <Description>Reads and converts sensor values and adjust the led colors for visual feedback of value changes.</Description>
+      <Shortcut>snip2</Shortcut>
+    </Header>
+    <Snippet>
+
+      <Code Language="CSharp">
+        <![CDATA[
+        
+                Lumen = (int)(HAT.GetLightLevel() * 1000);
+                Temperature = HAT.GetTemperature() + TempOffset;
+
+                //Vizualize sensor values in case the device has no screen attached or NanoRDP session.
+                HAT.D2.Color = ColorHelper.GetHATColor((int)((Temperature / 38) * 100), Colors.Red, Colors.Blue);
+                HAT.D3.Color = ColorHelper.GetHATColor((int)((Lumen / 1000) * 100), Colors.Yellow, Colors.Orange);
+       
+            
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Snippet 3 - Adding the IoT Hub client and sending values to the cloud.</Title>
+      <Author>Valery Jacobs</Author>
+      <Description>Reads and converts sensor values and adjust the led colors for visual feedback of value changes.</Description>
+      <Shortcut>snip3</Shortcut>
+    </Header>
+    <Snippet>
+      <Imports>
+        <Import>
+          <Namespace>Microsoft.Azure.Devices.Client</Namespace>
+        </Import>
+      </Imports>
+      <Code Language="CSharp">
+        <![CDATA[
+        
+                //A device specific connectionstring that let's us create a DeviceClient object that can send messages to Azure IoT Hub.
+        private string deviceConnectionString;
+
+        public string DeviceConnectionString
+        {
+            get { return deviceConnectionString; }
+            set { deviceConnectionString = value; }
+        }
+
+        public async Task SendMeasurement()
+        {
+            //Create the client using the device specific connectionstring.
+            var deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Http1);
+            var message = new Message(Encoding.ASCII.GetBytes("{ \"time\": \"" + DateTime.UtcNow.ToString() + "\", \"temperature\": \"" + Temperature + "\", \"lumen\": \"" + Lumen + "\" }"));
+
+            try
+            {
+                await deviceClient.SendEventAsync(message);
+
+                Online = true;
+            }
+            catch
+            {
+                Online = false;
+            }
+        }
+       
+            
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+<CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Snippet 4 - Setup up the UI and config for cloud connectivity.</Title>
+      <Author>Valery Jacobs</Author>
+      <Description>Initializes and stores the device connection string so users don't need to enter it at every startup.</Description>
+      <Shortcut>snip4</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp">
+        <![CDATA[
+        
+               if (localSettings.Values["DeviceConnectionString"] != null)
+            {
+                cs.DeviceConnectionString = localSettings.Values["DeviceConnectionString"].ToString();
+
+            }
+            else
+            {
+                cs.DeviceConnectionString = hardCodedDeviceConnectionString;
+            }
+
+            deviceConnectionString.Text = cs.DeviceConnectionString;
+       
+            
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+<CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Snippet 5 - Handles button events on the FAZHAT.</Title>
+      <Author>Valery Jacobs</Author>
+      <Description>A timer check the button status of the shield and reacts on it to offset the measurement so we can manually manipulate values</Description>
+      <Shortcut>snip5</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp">
+        <![CDATA[
+        
+            //Handle a button press event exactly once.
+            if (cs.HAT != null)
+            {
+                if (cs.HAT.IsDIO18Pressed())
+                {
+                    if (!backOffUp)
+                        cs.TempOffset += 2;
+                    backOffUp = true;
+                }
+                else
+                {
+                    backOffUp = false;
+                }
+
+                if (cs.HAT.IsDIO22Pressed())
+                {
+                    if (!backOffDown)
+                        cs.TempOffset -= 2;
+
+                    backOffDown = true;
+                }
+                else
+                {
+                    backOffDown = false;
+                }
+            }
+       
+       
+        
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+<CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Snippet 6 - Call the helper class to submit values to the cloud and update the UI.</Title>
+      <Author>Valery Jacobs</Author>
+      <Description></Description>
+      <Shortcut>snip6</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="CSharp">
+        <![CDATA[
+        
+          
+       //Update conn str in case it was changed in the UI at runtime.
+        cs.DeviceConnectionString = deviceConnectionString.Text;
+
+                await cs.SendMeasurement();
+
+                if (!cs.Online)
+                {
+                    SubmitButton.IsChecked = false;
+                    deviceConnectionString.Focus(FocusState.Keyboard);
+                }
+
+                localSettings.Values["DeviceConnectionString"] = cs.DeviceConnectionString;
+
+                message.Text = cs.Online ? "Online" : "Check connection or connection string!";
+            
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
