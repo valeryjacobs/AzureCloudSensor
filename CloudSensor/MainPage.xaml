@@ -105,7 +105,7 @@
                 </charting:Chart>
 
 
-                <ToggleButton HorizontalAlignment="Center" Grid.Column="2" Grid.Row="2" Margin="20" FontSize="30"   Background="DarkGray"  IsChecked="False" x:Name="SubmitButton" Checked="SubmitButton_Checked" Unchecked="SubmitButton_Unchecked"  >Submit data</ToggleButton>
+                <ToggleButton HorizontalAlignment="Center" Grid.Column="2" Grid.Row="2" Margin="20" FontSize="30"   Background="DarkGray"  IsChecked="True" x:Name="SubmitButton" Checked="SubmitButton_Checked" Unchecked="SubmitButton_Unchecked"  >Submit data</ToggleButton>
 
             </Grid>
        

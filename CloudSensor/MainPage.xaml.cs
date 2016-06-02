@@ -20,6 +20,8 @@ namespace CloudSensor
 {
     public sealed partial class MainPage : Page
     {
+        //Set the resolution on your device to HD to prevent element overlap.
+
         //Set this value so you don't have to type it in a W10 IoT Core UI.
         private const string hardCodedDeviceConnectionString = "";
 
@@ -36,7 +38,7 @@ namespace CloudSensor
         private CloudSensorHelper cs;
         public MainPage()
         {
-            send = false;
+            send = true;
             this.InitializeComponent();
             localSettings = ApplicationData.Current.LocalSettings;
 
